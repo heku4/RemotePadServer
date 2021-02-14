@@ -8,9 +8,9 @@
 import Vapor
 
 struct Keyboard: Content {
-    let pressedKey: UInt16
     let tappedKey: UInt16?
-    let tappedSecondKey: UInt16?
+    let secondPressedKey: UInt16?
+    let firstPressedKey: UInt16?
     let doubleCombination: Bool
     let trippleCombination: Bool
 }

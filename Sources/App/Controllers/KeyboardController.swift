@@ -9,37 +9,44 @@ import Vapor
 
 final class KeyboardController {
     
+    private let modificatorKey: [UInt16?: String] = [55: "command", 58: "option", 59: "control", 63: "fn", 57: "shift", nil: "err"]
+
     public func pressKey(keyCode: UInt16) {
-        self.keyboardKeyDown(letterKeyCode: keyCode)
+        self.keyboardKeyDown(letterKeyCode: keyCode, modificatorKeyCode: nil)
         self.keyboardKeyUp(letterKeyCode: keyCode)
     }
-    
-    public func keyboardDoubleCombination(pressedKey:CGKeyCode, tappedKey:CGKeyCode){
-        self.keyboardKeyDown(letterKeyCode: pressedKey) //cmd down
-        self.keyboardKeyDown(letterKeyCode: tappedKey)  // space down
-        self.keyboardKeyUp(letterKeyCode: tappedKey)  //space up
-        self.keyboardKeyUp(letterKeyCode: pressedKey) // cmd up = cmd+space
+    public func keyboardDoubleCombination(pressedKey:CGKeyCode, modificatorKey:UInt16){
+        self.keyboardKeyDown(letterKeyCode: pressedKey, modificatorKeyCode: modificatorKey)
+        self.keyboardKeyUp(letterKeyCode: pressedKey)
     }
     
-    public func keyboardTrippleCombination(firstPressedKey:CGKeyCode, secondPressedKey: CGKeyCode, tappedKey:CGKeyCode){
-        self.keyboardKeyDown(letterKeyCode: firstPressedKey) //cmd down
-        self.keyboardKeyDown(letterKeyCode: secondPressedKey) //cmd down
-        self.keyboardKeyDown(letterKeyCode: tappedKey)  // space down
-        self.keyboardKeyUp(letterKeyCode: tappedKey)  //space up
-        self.keyboardKeyUp(letterKeyCode: firstPressedKey) // cmd up = cmd+space
-        self.keyboardKeyUp(letterKeyCode: secondPressedKey) // cmd up = cmd+space
-    }
-    
-    private func keyboardKeyDown(letterKeyCode: CGKeyCode) {
+    private func keyboardKeyDown(letterKeyCode: CGKeyCode, modificatorKeyCode: UInt16?) -> String {
         let keyboardKeyDown = CoreGraphics.CGEvent(keyboardEventSource: nil, virtualKey: letterKeyCode, keyDown: true)
-        keyboardKeyDown?.flags = CGEventFlags.init() //additional states for key press
+        
+        let modificator = self.modificatorKey[modificatorKeyCode!]
+        switch modificator {
+        case "command":
+            keyboardKeyDown?.flags = CGEventFlags.maskCommand
+        case "option":
+            keyboardKeyDown?.flags = CGEventFlags.maskAlternate
+        case "control":
+            keyboardKeyDown?.flags = CGEventFlags.maskControl
+        case "fn":
+            keyboardKeyDown?.flags = CGEventFlags.maskSecondaryFn
+        case "shift":
+            keyboardKeyDown?.flags = CGEventFlags.maskShift
+        case "err":
+            return "err"
+        default:
+            keyboardKeyDown?.flags = CGEventFlags.init()
+        }
         keyboardKeyDown?.post(tap: CGEventTapLocation.cghidEventTap)
+        return "done"
     }
+    
     private func keyboardKeyUp(letterKeyCode: CGKeyCode) {
         let keyboardKeyUp = CoreGraphics.CGEvent(keyboardEventSource: nil, virtualKey: letterKeyCode, keyDown: false)
         keyboardKeyUp?.flags = CGEventFlags.init()
         keyboardKeyUp?.post(tap: CGEventTapLocation.cghidEventTap)
     }
-    
-    
 }

@@ -8,19 +8,19 @@ func routes(_ app: Application) throws {
     app.get(":keyCode") { req -> String in
         let code = req.parameters.get("keyCode")!
         if let keyCode: UInt16 = UInt16(code) {
-            KeyboardController().pressKey(keyCode: keyCode)
+            KeyboardController().pressKey(keyCode: keyCode, modificatorKeyCode: 0)
             return "Key code = \(keyCode)"
         } else {
-            return "No key code in req"
+            return "Error. No valid key code in request"
         }
     }
         
     app.get("combination", ":modificator", ":key") { req -> String in
         if let modificatorCode = UInt16(req.parameters.get("modificator")!), let keyCode = UInt16(req.parameters.get("key")!) {
-            KeyboardController().keyboardDoubleCombination(pressedKey: keyCode, modificatorKey: modificatorCode)
-            return "Keys combination: \(modificatorCode) + \(keyCode)"
+            KeyboardController().pressKey(keyCode: keyCode, modificatorKeyCode: modificatorCode)
+            return "OK"
         } else {
-            return "No key code in req"
+            return "Error. No valid key codes combination in request"
         }
     }
 }

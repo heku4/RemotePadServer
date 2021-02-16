@@ -23,4 +23,13 @@ func routes(_ app: Application) throws {
             return "Error. No valid key codes combination in request"
         }
     }
+    
+    app.get("mouse", "move", ":x", ":y") { req -> String in
+        if let posX = Double(req.parameters.get("x")!), let posY = Double(req.parameters.get("y")!) {
+            TouchController().moveCursor(posX: posX, posY: posY)
+            return "Cursor moved"
+        } else {
+            return "Error. No valid coordinates in request"
+        }
+    }
 }

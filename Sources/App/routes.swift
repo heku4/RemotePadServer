@@ -32,4 +32,12 @@ func routes(_ app: Application) throws {
             return "Error. No valid coordinates in request"
         }
     }
+    
+    app.webSocket("echo") { req, ws in
+        ws.onText { ws, text in
+            let coordinates = text.split(separator: "/")
+            TouchController().moveCursor(posX: Double(coordinates[0])!, posY: Double(coordinates[1])!)
+        }
+        print(ws)
+    }
 }

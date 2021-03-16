@@ -34,6 +34,11 @@ func routes(_ app: Application) throws {
     }
     
     app.webSocket("echo") { req, ws in
+        ws.send("ws")
+        print("Device connected to ws-server")
+    }
+    
+    app.webSocket("pad") { req, ws in
         ws.onText { ws, text in
             let coordinates = text.split(separator: "/")
             TouchController().moveCursor(posX: Double(coordinates[0])!, posY: Double(coordinates[1])!)
